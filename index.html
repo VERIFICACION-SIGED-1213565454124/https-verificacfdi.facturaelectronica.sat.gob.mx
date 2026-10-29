@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Comprobantes Fiscales Digitales por Internet</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Montserrat & Merriweather -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gob: {
+                            guinda: '#621132',
+                            guindadark: '#4a0d26',
+                            guindalight: '#98224a',
+                            gold: '#b38e5d',
+                            border: '#cccccc'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Merriweather', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Trama de fondo para simular el CAPTCHA oficial */
+        .captcha-pattern {
+            background-color: #d1d5db;
+            background-image: radial-gradient(#4b5563 1px, transparent 0), repeating-linear-gradient(45deg, #9ca3af 0, #9ca3af 1px, transparent 0, transparent 50px);
+            background-size: 10px 10px, 30px 30px;
+        }
+    </style>
+</head>
+<body class="min-h-full flex flex-col justify-between text-slate-800 font-sans antialiased">
+
+    <!-- 1. ENCABEZADO PRINCIPAL -->
+    <header class="bg-gob-guinda text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
+            <!-- LOGO SUPERIOR IZQUIERDO (Personalizable) -->
+            <div class="flex items-center space-x-3">
+                <img src="logo_encabezado.png" 
+                     onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 240 50\'><text x=\'10\' y=\'32\' fill=\'white\' font-family=\'Montserrat\' font-size=\'18\' font-weight=\'bold\'>Gobierno de México</text></svg>';" 
+                     alt="Logo Encabezado" 
+                     class="h-10 object-contain" />
+            </div>
+
+            <!-- ENLACES ESQUINA SUPERIOR DERECHA -->
+            <nav class="flex items-center space-x-6 text-sm font-normal">
+                <a href="#" class="hover:underline text-white">Trámites</a>
+                <a href="#" class="hover:underline text-white">Gobierno</a>
+                <button aria-label="Buscar" class="hover:opacity-80 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-magnifying-glass text-base"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- BARRA SECUNDARIA "FACTURA ELECTRÓNICA" -->
+    <div class="bg-gob-guindadark text-white py-3.5 border-t border-gob-guindalight/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-lg font-light tracking-wider uppercase">Factura Electrónica</h2>
+        </div>
+    </div>
+
+    <!-- 2. CONTENIDO PRINCIPAL -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-6 sm:px-6">
+        
+        <!-- Migas de pan / Breadcrumb -->
+        <nav class="flex items-center text-xs text-slate-600 mb-6 space-x-2">
+            <a href="#" class="hover:text-gob-guinda text-slate-700"><i class="fa-solid fa-house"></i></a>
+            <span>&rsaquo;</span>
+            <span class="text-slate-600">Inicio</span>
+        </nav>
+
+        <!-- LOGO SECUNDARIO Y VERSIÓN -->
+        <div class="mb-2">
+            <img src="logo_hacienda.png" 
+                 onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 350 45\'><text x=\'5\' y=\'30\' fill=\'%23621132\' font-family=\'Montserrat\' font-size=\'20\' font-weight=\'bold\'>HACIENDA</text><text x=\'150\' y=\'30\' fill=\'%23333333\' font-family=\'Montserrat\' font-size=\'20\' font-weight=\'bold\'>| SAT</text></svg>';" 
+                 alt="Hacienda / SAT" 
+                 class="h-12 object-contain" />
+            <p class="text-xs text-slate-500 mt-1 font-light">Versión 4.5.1</p>
+        </div>
+
+        <!-- TÍTULO PRINCIPAL -->
+        <h1 class="text-2xl sm:text-3xl font-serif font-bold text-slate-800 my-6 leading-tight">
+            Verificación de comprobantes fiscales digitales por internet
+        </h1>
+
+        <!-- SELECTOR DE MÉTODO DE CONSULTA -->
+        <div class="flex flex-col sm:flex-row gap-6 mb-4 text-sm font-semibold text-slate-800">
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="radio" name="tipo_consulta" value="manual" checked onchange="toggleOption('manual')" class="w-4 h-4 text-gob-guinda focus:ring-gob-guinda border-slate-300">
+                <span class="ml-2">Consulta por Folio Fiscal</span>
+            </label>
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="radio" name="tipo_consulta" value="xml" onchange="toggleOption('xml')" class="w-4 h-4 text-gob-guinda focus:ring-gob-guinda border-slate-300">
+                <span class="ml-2">Consulta por archivo XML</span>
+            </label>
+        </div>
+
+        <!-- Línea decorativa dorada -->
+        <div class="w-12 h-1 bg-gob-gold mb-8"></div>
+
+        <!-- TEXTO INFORMATIVO -->
+        <p class="text-center text-sm font-bold text-slate-700 max-w-2xl mx-auto mb-8 leading-relaxed">
+            A través de esta opción, usted podrá verificar si el comprobante fue certificado por el SAT
+        </p>
+
+        <!-- FORMULARIO 1: CONSULTA POR FOLIO FISCAL -->
+        <form id="form-manual" onsubmit="handleVerification(event)" class="max-w-2xl mx-auto space-y-4">
+            
+            <div>
+                <label for="uuid" class="block text-xs font-normal text-slate-700 mb-1">Folio fiscal*:</label>
+                <input type="text" id="uuid" required placeholder="" 
+                       class="w-full px-3 py-1.5 border border-slate-300 rounded text-sm text-slate-800 focus:outline-none focus:border-gob-guinda focus:ring-1 focus:ring-gob-guinda font-mono uppercase"
+                       oninput="this.value = this.value.toUpperCase()">
+            </div>
+
+            <div>
+                <label for="rfc-emisor" class="block text-xs font-normal text-slate-700 mb-1">RFC emisor*:</label>
+                <input type="text" id="rfc-emisor" required maxlength="13" 
+                       class="w-full px-3 py-1.5 border border-slate-300 rounded text-sm text-slate-800 focus:outline-none focus:border-gob-guinda focus:ring-1 focus:ring-gob-guinda uppercase"
+                       oninput="this.value = this.value.toUpperCase()">
+            </div>
+
+            <div>
+                <label for="rfc-receptor" class="block text-xs font-normal text-slate-700 mb-1">RFC receptor*:</label>
+                <input type="text" id="rfc-receptor" required maxlength="13" 
+                       class="w-full px-3 py-1.5 border border-slate-300 rounded text-sm text-slate-800 focus:outline-none focus:border-gob-guinda focus:ring-1 focus:ring-gob-guinda uppercase"
+                       oninput="this.value = this.value.toUpperCase()">
+            </div>
+
+            <!-- SECCIÓN DEL CAPTCHA -->
+            <div class="pt-4">
+                <div class="flex items-center space-x-3 mb-2">
+                    <div class="captcha-pattern relative w-44 h-16 border border-slate-400 rounded flex items-center justify-center overflow-hidden shadow-inner select-none">
+                        <canvas id="captchaCanvas" width="170" height="60"></canvas>
+                    </div>
+                    <button type="button" onclick="generateCaptcha()" class="text-slate-600 hover:text-gob-guinda p-2 rounded" title="Cambiar imagen">
+                        <i class="fa-solid fa-rotate-right text-lg"></i>
+                    </button>
+                </div>
+
+                <label for="captcha-input" class="block text-xs font-normal text-slate-700 mb-1">
+                    Proporcione los dígitos de la imagen*:
+                </label>
+                <input type="text" id="captcha-input" required 
+                       class="w-full px-3 py-1.5 border border-slate-300 rounded text-sm text-slate-800 focus:outline-none focus:border-gob-guinda focus:ring-1 focus:ring-gob-guinda font-mono uppercase">
+            </div>
+
+            <!-- ACCIONES -->
+            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span class="text-xs text-slate-500 italic order-2 sm:order-1">* Datos obligatorios</span>
+                
+                <button type="submit" 
+                        class="order-1 sm:order-2 w-full sm:w-auto px-6 py-2 border-2 border-gob-guinda text-gob-guinda hover:bg-gob-guinda hover:text-white font-medium text-sm rounded transition-colors duration-150 shadow-sm">
+                    Verificar CFDI
+                </button>
+            </div>
+        </form>
+
+        <!-- FORMULARIO 2: CONSULTA POR XML -->
+        <form id="form-xml" onsubmit="handleXmlSubmit(event)" class="hidden max-w-2xl mx-auto space-y-4">
+            <div class="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center bg-slate-50 hover:bg-slate-100 transition-colors">
+                <i class="fa-solid fa-file-code text-4xl text-slate-400 mb-3"></i>
+                <p class="text-sm text-slate-700 mb-2 font-medium">Seleccione o arrastre su archivo XML (.xml)</p>
+                <input type="file" id="xml-file" accept=".xml" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gob-guinda file:text-white hover:file:bg-gob-guindadark cursor-pointer" onchange="parseXmlFile(event)">
+            </div>
+
+            <div id="xml-summary" class="hidden p-4 border border-slate-200 rounded bg-white text-xs space-y-1">
+                <p class="font-bold text-slate-700 mb-2">Comprobante detectado:</p>
+                <p><strong>Folio Fiscal:</strong> <span id="xml-uuid-val">-</span></p>
+                <p><strong>RFC Emisor:</strong> <span id="xml-emisor-val">-</span></p>
+                <p><strong>RFC Receptor:</strong> <span id="xml-receptor-val">-</span></p>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+                <button type="submit" 
+                        class="px-6 py-2 border-2 border-gob-guinda text-gob-guinda hover:bg-gob-guinda hover:text-white font-medium text-sm rounded transition-colors duration-150">
+                    Verificar CFDI desde XML
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- 3. PIE DE PÁGINA (FOOTER COMPLETO) -->
+    <footer class="bg-gob-guinda text-white pt-10 pb-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-xs font-light">
+                
+                <!-- LOGO EN FOOTER (Personalizable) -->
+                <div class="space-y-4">
+                    <img src="logo_footer.png" 
+                         onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 50\'><text x=\'0\' y=\'25\' fill=\'white\' font-family=\'Montserrat\' font-size=\'15\' font-weight=\'bold\'>Gobierno de</text><text x=\'0\' y=\'45\' fill=\'white\' font-family=\'Montserrat\' font-size=\'18\' font-weight=\'bold\'>México</text></svg>';" 
+                         alt="Logo Footer" 
+                         class="h-12 object-contain" />
+                </div>
+
+                <!-- COLUMNA 1: Enlaces -->
+                <div>
+                    <h3 class="font-bold text-sm mb-3">Enlaces</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:underline">Datos abiertos de la SABG</a></li>
+                        <li><a href="#" class="hover:underline">Marco Jurídico</a></li>
+                        <li><a href="#" class="hover:underline">Plataforma Nacional de Transparencia</a></li>
+                        <li><a href="#" class="hover:underline">Transparencia para el pueblo</a></li>
+                        <li><a href="#" class="hover:underline">Alerta</a></li>
+                    </ul>
+                </div>
+
+                <!-- COLUMNA 2: ¿Qué es gob.mx? -->
+                <div>
+                    <h3 class="font-bold text-sm mb-3">¿Qué es gob.mx?</h3>
+                    <p class="mb-3 leading-relaxed">
+                        Es el portal único de trámites, información y participación ciudadana. <a href="#" class="underline">Leer más</a>
+                    </p>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:underline">Portal de datos abiertos</a></li>
+                        <li><a href="#" class="hover:underline">Declaración de accesibilidad</a></li>
+                        <li><a href="#" class="hover:underline">Términos y Condiciones</a></li>
+                    </ul>
+                </div>
+
+                <!-- COLUMNA 3: Denuncia y Redes Sociales -->
+                <div>
+                    <a href="#" class="font-bold text-sm hover:underline block mb-4">
+                        Denuncia contra servidores públicos
+                    </a>
+                    
+                    <h4 class="font-bold mb-2">Síguenos en</h4>
+                    <div class="flex space-x-4 text-base mb-6">
+                        <a href="#" class="hover:text-gob-gold" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="hover:text-gob-gold" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" class="hover:text-gob-gold" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="hover:text-gob-gold" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-asterisk text-xs"></i>
+                        <span class="text-sm font-bold">079</span>
+                        <span class="text-[10px] text-slate-300">Comunícate, estamos para ayudarte</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL RESULTADO DE LA CONSULTA -->
+    <div id="resultModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden">
+            <div class="bg-gob-guinda text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-sm uppercase tracking-wide">Resultado de la Verificación</h3>
+                <button onclick="closeModal()" class="text-white hover:text-gob-gold">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-3 text-xs text-slate-700">
+                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded text-emerald-800 font-bold flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-circle-check text-lg"></i>
+                    <span>El comprobante fiscal se encuentra registrado en los controles del SAT.</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 border-b border-slate-200 pb-2">
+                    <span class="font-bold text-slate-600">Estado CFDI:</span>
+                    <span class="text-emerald-700 font-bold uppercase">Vigente</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 border-b border-slate-200 pb-2">
+                    <span class="font-bold text-slate-600">Folio Fiscal (UUID):</span>
+                    <span id="res-uuid" class="font-mono text-[11px] break-all"></span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 border-b border-slate-200 pb-2">
+                    <span class="font-bold text-slate-600">RFC Emisor:</span>
+                    <span id="res-emisor" class="font-mono"></span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 border-b border-slate-200 pb-2">
+                    <span class="font-bold text-slate-600">RFC Receptor:</span>
+                    <span id="res-receptor" class="font-mono"></span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 border-b border-slate-200 pb-2">
+                    <span class="font-bold text-slate-600">Fecha de Certificación:</span>
+                    <span id="res-fecha"></span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <span class="font-bold text-slate-600">PAC que Certificó:</span>
+                    <span>SAT010720750</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 px-6 py-3 flex justify-end">
+                <button onclick="closeModal()" class="px-4 py-1.5 bg-gob-guinda text-white text-xs font-semibold rounded hover:bg-gob-guindadark">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÓGICA DE CAPTCHA Y VALIDACIÓN -->
+    <script>
+        let currentCaptchaCode = "";
+
+        window.onload = function() {
+            generateCaptcha();
+        };
+
+        function toggleOption(type) {
+            const formManual = document.getElementById('form-manual');
+            const formXml = document.getElementById('form-xml');
+
+            if (type === 'manual') {
+                formManual.classList.remove('hidden');
+                formXml.classList.add('hidden');
+            } else {
+                formManual.classList.add('hidden');
+                formXml.classList.remove('hidden');
+            }
+        }
+
+        function generateCaptcha() {
+            const canvas = document.getElementById('captchaCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            currentCaptchaCode = Math.floor(10000 + Math.random() * 90000).toString();
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "bold 32px 'Merriweather', serif";
+            ctx.fillStyle = "#222222";
+            ctx.textBaseline = "middle";
+
+            for (let i = 0; i < currentCaptchaCode.length; i++) {
+                ctx.save();
+                let x = 20 + i * 28;
+                let y = 30 + (Math.random() * 6 - 3);
+                let angle = (Math.random() * 0.4 - 0.2);
+                
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+                ctx.fillText(currentCaptchaCode[i], 0, 0);
+                ctx.restore();
+            }
+
+            for (let i = 0; i < 4; i++) {
+                ctx.strokeStyle = "#555555";
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.stroke();
+            }
+
+            document.getElementById('captcha-input').value = "";
+        }
+
+        function handleVerification(e) {
+            e.preventDefault();
+
+            const inputCaptcha = document.getElementById('captcha-input').value.trim();
+
+            if (inputCaptcha !== currentCaptchaCode) {
+                alert('Los dígitos ingresados no corresponden a la imagen. Por favor intente de nuevo.');
+                generateCaptcha();
+                return;
+            }
+
+            const uuid = document.getElementById('uuid').value.trim();
+            const emisor = document.getElementById('rfc-emisor').value.trim();
+            const receptor = document.getElementById('rfc-receptor').value.trim();
+
+            openModal(uuid, emisor, receptor);
+        }
+
+        let xmlData = null;
+        function parseXmlFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(evt.target.result, "text/xml");
+
+                    const timbre = xmlDoc.getElementsByTagName("tfd:TimbreFiscalDigital")[0] || xmlDoc.getElementsByTagName("TimbreFiscalDigital")[0];
+                    const emisor = xmlDoc.getElementsByTagName("cfdi:Emisor")[0] || xmlDoc.getElementsByTagName("Emisor")[0];
+                    const receptor = xmlDoc.getElementsByTagName("cfdi:Receptor")[0] || xmlDoc.getElementsByTagName("Receptor")[0];
+
+                    xmlData = {
+                        uuid: timbre ? timbre.getAttribute("UUID") : "05BBBFE6-A422-44DC-AF56-97DC26312FAD",
+                        emisor: emisor ? emisor.getAttribute("Rfc") : "CMC0712144R4",
+                        receptor: receptor ? receptor.getAttribute("Rfc") : "XAXX010101000"
+                    };
+
+                    document.getElementById('xml-uuid-val').textContent = xmlData.uuid;
+                    document.getElementById('xml-emisor-val').textContent = xmlData.emisor;
+                    document.getElementById('xml-receptor-val').textContent = xmlData.receptor;
+                    document.getElementById('xml-summary').classList.remove('hidden');
+
+                } catch (err) {
+                    alert('Error al leer el archivo XML.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function handleXmlSubmit(e) {
+            e.preventDefault();
+            if (!xmlData) {
+                alert('Por favor seleccione un archivo XML primero.');
+                return;
+            }
+            openModal(xmlData.uuid, xmlData.emisor, xmlData.receptor);
+        }
+
+        function openModal(uuid, emisor, receptor) {
+            document.getElementById('res-uuid').textContent = uuid;
+            document.getElementById('res-emisor').textContent = emisor;
+            document.getElementById('res-receptor').textContent = receptor;
+            document.getElementById('res-fecha').textContent = new Date().toLocaleString('es-MX');
+
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+            generateCaptcha();
+        }
+    </script>
+</body>
+</html>
